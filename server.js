@@ -3,19 +3,22 @@ const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const path = require('path');
 const adminRoutes = require('./routes/adminRoutes');
 require('dotenv').config();
 
 const app = express();
 
-// --- طبقات الحماية والتأمين السيبراني ---
-app.use(helmet());
+// --- طبقات الأمان والتأمين السيبراني ---
+app.use(helmet({
+    contentSecurityPolicy: false // للسماح بتشغيل السكريبتات والإعلانات بسلاسة
+}));
 app.use(express.json());
 app.use(cookieParser());
 
 const securityLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 30,
+    max: 50,
     message: "⚠️ تنبيه أمني: محاولات متكررة مشبوهة، تم تقييد الوصول مؤقتاً."
 });
 app.use('/secret-portal-x99', securityLimiter);
@@ -26,45 +29,36 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log('🔥 متصل بقاعدة البيانات بنجاح تام لصالح إدارة وتطوير أبو العز العمري'))
     .catch(err => console.error('❌ خطأ في الاتصال بقاعدة البيانات:', err));
 
+// --- تقديم الملفات الثابتة (Frontend) ---
+app.use(express.static(path.join(__dirname, 'public')));
+
 // --- ربط مسارات لوحة الإدارة المخفية ---
 app.use('/secret-portal-x99/api', adminRoutes);
 
-// مسار لوحة التحكم الرئيسية المخفية والمنعزلة
+// مسار صفحة تسجيل الدخول السرية
+app.get('/secret-portal-x99/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// مسار لوحة التحكم المركزية المحمية
 const SECRET_ADMIN_PATH = '/secret-portal-x99/admin-master-v1';
 app.get(SECRET_ADMIN_PATH, (req, res) => {
     const adminToken = req.cookies.admin_auth_token;
     
     if (!adminToken) {
-        return res.status(403).send(`
-            <html dir="rtl"><head><title>منطقة محظورة - أبو العز العمري</title></head>
-            <body style="background:#0f172a; color:#ef4444; font-family:Tahoma; text-align:center; padding-top:100px;">
-                <h1>⛔ منطقة محظورة أمنياً</h1>
-                <p>هذا المسار عالي السرية ومراقب بالكامل.</p>
-            </body></html>
-        `);
+        // إذا لم يكن مسجلاً، نوجهه لصفحة تسجيل الدخول السرية
+        return res.redirect('/secret-portal-x99/login');
     }
 
-    res.send(`
-        <html dir="rtl"><head><title>لوحة التحكم السيبرانية - إدارة وتطوير أبو العز العمري</title></head>
-        <body style="background:#020617; color:#38bdf8; font-family:Tahoma; padding:30px;">
-            <h1>🛡️ لوحة التحكم المركزية المخفية - إدارة وتطوير أبو العز العمري</h1>
-            <p>النظام محمي ومؤمن بالكامل وجاهز للربط مع إعلانات Adsterra وإدارة الملفات.</p>
-        </body></html>
-    `);
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 // الواجهة العامة للشركة
 app.get('/', (req, res) => {
-    res.send(`
-        <html dir="rtl"><head><title>إدارة وتطوير أبو العز العمري</title></head>
-        <body style="background:#0f172a; color:#fff; font-family:Tahoma; text-align:center; padding-top:100px;">
-            <h1>🚀 شركة إدارة وتطوير أبو العز العمري</h1>
-            <p>المنظومة الرقمية الخارقة تعمل بأقصى طاقة واستقرار.</p>
-        </body></html>
-    `);
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 السيرفر الجبار يعمل الآن على البورت ${PORT}`);
+    console.log(`🚀 السيرفر الجبار يعمل الآن بأقصى سرعة على البورت ${PORT}`);
 });
