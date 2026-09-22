@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم المركزية - إدارة وتطوير أبو العز العمري</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background: #020617; color: #f8fafc; display: flex; height: 100vh; overflow: hidden; }
+        aside { width: 260px; background: #0f172a; border-left: 1px solid #1e293b; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .logo { font-size: 16px; font-weight: bold; color: #38bdf8; margin-bottom: 30px; text-align: center; }
+        nav a { display: block; color: #94a3b8; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; transition: 0.3s; }
+        nav a:hover, nav a.active { background: #1e293b; color: #38bdf8; }
+        main { flex: 1; padding: 40px; overflow-y: auto; background: #020617; }
+        h1 { color: #38bdf8; margin-bottom: 10px; font-size: 24px; }
+        p.subtitle { color: #64748b; margin-bottom: 30px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #0f172a; border: 1px solid #1e293b; padding: 20px; border-radius: 12px; }
+        .stat-card h3 { color: #94a3b8; font-size: 14px; margin-bottom: 8px; }
+        .stat-card .num { color: #38bdf8; font-size: 26px; font-weight: bold; }
+        .panel-box { background: #0f172a; border: 1px solid #1e293b; padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .panel-box h3 { color: #f8fafc; margin-bottom: 15px; font-size: 18px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; color: #94a3b8; font-size: 13px; margin-bottom: 5px; }
+        input, textarea, select { width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: #fff; font-size: 14px; }
+        button { background: #2563eb; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <div>
+            <div class="logo">🛡️ أبو العز العمري</div>
+            <nav>
+                <a href="#" class="active">📊 الرئيسية والتحليلات</a>
+                <a href="#">📁 إدارة الملفات المحمية</a>
+                <a href="#">💰 إعدادات إعلانات Adsterra</a>
+                <a href="#">⚙️ إعدادات الأمان والـ IP</a>
+            </nav>
+        </div>
+        <div style="font-size: 12px; color: #64748b; text-align: center;">النسخة السيبرانية v1.0</div>
+    </aside>
+
+    <main>
+        <h1>لوحة التحكم المركزية الآمنة</h1>
+        <p class="subtitle">أهلاً بك يا مدير. المنظومة تعمل بأعلى كفاءة وتحت حماية كاملة.</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>حالة السيرفر والحماية</h3>
+                <div class="num" style="color: #22c55e;">🟢 محصن 100%</div>
+            </div>
+            <div class="stat-card">
+                <h3>الملفات المحمية المرفوعة</h3>
+                <div class="num">0 ملف</div>
+            </div>
+            <div class="stat-card">
+                <h3>أرباح إعلانات Adsterra</h3>
+                <div class="num">نشط الآن</div>
+            </div>
+        </div>
+
+        <div class="panel-box">
+            <h3>🚀 ربط والتحكم بأكواد إعلانات Adsterra</h3>
+            <form id="adForm">
+                <div class="form-group">
+                    <label>اسم المساحة الإعلانية (Zone Name)</label>
+                    <input type="text" id="zoneName" placeholder="مثال: Banner_Footer_90" required>
+                </div>
+                <div class="form-group">
+                    <label>كود إعلان Adsterra الخام (HTML / Script)</label>
+                    <textarea id="adCode" rows="4" placeholder="<script type='text/javascript' ...></script>" required></textarea>
+                </div>
+                <button type="submit">حفظ وتفعيل الإعلان فوراً</button>
+            </form>
+            <div id="adMsg" style="margin-top: 10px; font-size: 13px;"></div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('adForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const zoneName = document.getElementById('zoneName').value;
+            const adCode = document.getElementById('adCode').value;
+            const msgBox = document.getElementById('adMsg');
+
+            msgBox.style.color = '#38bdf8';
+            msgBox.innerText = '⏳ جاري تحديث وإرسال الإعدادات للسيرفر...';
+
+            try {
+                const res = await fetch('/secret-portal-x99/api/ads/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ zoneName, adCode, isActive: true })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    msgBox.style.color = '#22c55e';
+                    msgBox.innerText = data.message;
+                } else {
+                    msgBox.style.color = '#ef4444';
+                    msgBox.innerText = data.error || '❌ حدث خطأ أثناء التحديث.';
+                }
+            } catch(err) {
+                msgBox.style.color = '#ef4444';
+                msgBox.innerText = '❌ فشل الاتصال بقاعدة البيانات.';
+            }
+        });
+    </script>
+
+</body>
+</html>
