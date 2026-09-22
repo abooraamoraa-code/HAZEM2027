@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول الآمن - إدارة وتطوير أبو العز العمري</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background: #020617; color: #f8fafc; height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .login-box { background: #0f172a; padding: 40px; border-radius: 16px; border: 1px solid #1e293b; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        h2 { color: #38bdf8; text-align: center; margin-bottom: 25px; font-size: 22px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #94a3b8; font-size: 14px; }
+        input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: #fff; font-size: 16px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #38bdf8; }
+        button { width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1d4ed8; }
+        .msg { text-align: center; margin-top: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <h2>🔐 بوابة الإدارة السرية</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>اسم المستخدم الإداري</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>كلمة المرور المشفرة</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">دخول للقلعة</button>
+        </form>
+        <div id="responseMsg" class="msg"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const msgBox = document.getElementById('responseMsg');
+
+            msgBox.style.color = '#38bdf8';
+            msgBox.innerText = '⏳ جاري التحقق الأمني...';
+
+            try {
+                const res = await fetch('/secret-portal-x99/api/login-nexus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    msgBox.style.color = '#22c55e';
+                    msgBox.innerText = data.message;
+                    setTimeout(() => { window.location.href = '/secret-portal-x99/admin-master-v1'; }, 1500);
+                } else {
+                    msgBox.style.color = '#ef4444';
+                    msgBox.innerText = data.error;
+                }
+            } catch(err) {
+                msgBox.style.color = '#ef4444';
+                msgBox.innerText = '❌ حدث خطأ في الاتصال بالسيرفر.';
+            }
+        });
+    </script>
+
+</body>
+</html>
